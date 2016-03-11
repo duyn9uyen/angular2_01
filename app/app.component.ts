@@ -1,4 +1,5 @@
 import {Component} from 'angular2/core';
+import {OnInit} from 'angular2/core';
 import {bootstrap} from 'angular2/platform/browser'
 
 import {Month} from './month';
@@ -10,7 +11,11 @@ import {Year} from './year';
     templateUrl: 'app/app.component.html'
 })
 
-export class AppComponent { 
+export class AppComponent implements OnInit  { 
+    
+    ngOnInit() {
+        loadBarChart();
+    }
 
     months: Month[] = [
       { "id": "01", "name": "January" },
@@ -94,3 +99,70 @@ function getJsonArrayOfYears() {
         
 }
 
+function loadBarChart() {
+    $('#bargraphContainer').highcharts({
+        chart: {
+            type: 'bar'
+        },
+        title: {
+            text: 'Certifications by Learning Path'
+        },
+        subtitle: {
+            text: 'Source: <a href="https://en.wikipedia.org/wiki/World_population">Wikipedia.org</a>'
+        },
+        xAxis: {
+            categories: ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'],
+            title: {
+                text: null
+            }
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Population (millions)',
+                align: 'high'
+            },
+            labels: {
+                overflow: 'justify'
+            }
+        },
+        tooltip: {
+            valueSuffix: ' millions'
+        },
+        plotOptions: {
+            bar: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'top',
+            x: -40,
+            y: 80,
+            floating: true,
+            borderWidth: 1,
+            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+            shadow: true
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'Year 1800',
+            data: [107, 31, 635, 203, 2]
+        }, {
+            name: 'Year 1900',
+            data: [133, 156, 947, 408, 6]
+        }, {
+            name: 'Year 2012',
+            data: [1052, 954, 4250, 740, 38]
+        }]
+    });
+}
+
+$(document).ready(function(){
+    //alert("jquery");
+});
