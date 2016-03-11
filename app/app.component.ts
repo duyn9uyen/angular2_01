@@ -10,9 +10,6 @@ import {Year} from './year';
     templateUrl: 'app/app.component.html'
 })
 
-
-        
-        
 export class AppComponent { 
 
     months: Month[] = [
@@ -32,7 +29,21 @@ export class AppComponent {
     
     selectedMonth: Month = this.months[0];
     
-    onSelect(monthId) { 
+    years: Year[] = getJsonArrayOfYears();
+    selectedYear: Year = this.years[0];
+    
+    dt_start : string = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
+    dt_end : string = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString()  + "-01";
+    protocol : string = "https";
+    domain: string = "portal.captechventures.com";
+    urlPath1: string = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
+    urlPath2: string = "%27%29%20and%20%28DatePassed+lt+datetime%27";
+    urlPath3: string = "%27%29";
+    
+    certFilterUrl: string = this.protocol + "://" + this.domain + this.urlPath1 + this.dt_start + this.urlPath2 + this.dt_end + this.urlPath3;
+    
+    // Event Hander Functions----
+    onSelectMonth(monthId) { 
         this.selectedMonth = null;
         for (var i = 0; i < this.months.length; i++)
         {
@@ -40,9 +51,27 @@ export class AppComponent {
             this.selectedMonth = this.months[i];
           }
         }
+        this.buildSearchFilter();
+    }
+    onSelectYear(yearId) { 
+        this.selectedYear = null;
+        for (var i = 0; i < this.years.length; i++)
+        {
+          if (this.years[i].id == yearId) {
+            this.selectedYear = this.years[i];
+          }
+        }
+        this.buildSearchFilter();
     }
     
-    years: Year[] = getJsonArrayOfYears();
+    // Private Functions
+    private buildSearchFilter() {
+        this.dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
+        this.dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString()  + "-01";        
+        this.certFilterUrl = this.protocol + "://" + this.domain + this.urlPath1 + this.dt_start + this.urlPath2 + this.dt_end + this.urlPath3;
+    }
+    
+    
     
 }
 
@@ -54,9 +83,9 @@ function getJsonArrayOfYears() {
     var difference = currentYear - baseYear;
     
     var years = [];
-    // add in the base year up to the current year
+    // add in the current year the any previous years until the base year
     for (var index = 0; index <= difference; index++) {
-        var year = baseYear + index;
+        var year = currentYear - index;
         var jsonObj = {"id": year.toString(), "name": year.toString() }
         years.push(jsonObj);
     }
@@ -64,3 +93,4 @@ function getJsonArrayOfYears() {
     return years;
         
 }
+

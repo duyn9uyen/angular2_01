@@ -1,6 +1,3 @@
-<h1>
-    hello world
-</h1>
 
 <!--<div>
     Choose month:
@@ -19,14 +16,42 @@
         <option value='12'>December</option>
     </select> 
 </div>-->
-    
 
-<br>
-<br>
-<div>
-    Choose month:
-    <select (change)="onSelect($event.target.value)">
-      <option *ngFor="#month of months" [value]="month.id">{{month.name}}</option>
-    </select>
-    <div>selection={{selectedMonth.name}}</div>
-</div>       
+
+<div class="container">
+    <h1>Certifications</h1>
+    <br>
+    <br>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-3">
+            Choose month:
+            <select class="form-control" (change)="onSelectMonth($event.target.value)">
+                <option *ngFor="#month of months" [value]="month.id">{{month.name}}</option>
+            </select>
+            <div>selection={{selectedMonth.name}}</div>
+        </div>
+        <div class="col-xs-12 col-sm-3">
+            Choose year:
+            <select class="form-control" (change)="onSelectYear($event.target.value)">
+                <option *ngFor="#year of years" [value]="year.id">{{year.name}}</option>
+            </select>
+            <div>selection={{selectedYear.name}}</div>
+        </div>
+    </div>
+    
+    <br>
+    <div class="row">
+        <div class="col-xs-12">
+            <button class="btn btn-primary" (click)="btnClicked()">test button</button>
+        </div>
+    </div>
+    
+    <div>Filter Url Built: {{certFilterUrl}}</div><br>
+</div>
+
+
+
+
+
+

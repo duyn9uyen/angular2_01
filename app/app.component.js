@@ -18,9 +18,9 @@ System.register(['angular2/core'], function(exports_1, context_1) {
         var baseYear = 2015;
         var difference = currentYear - baseYear;
         var years = [];
-        // add in the base year up to the current year
+        // add in the current year the any previous years until the base year
         for (var index = 0; index <= difference; index++) {
-            var year = baseYear + index;
+            var year = currentYear - index;
             var jsonObj = { "id": year.toString(), "name": year.toString() };
             years.push(jsonObj);
         }
@@ -50,14 +50,40 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                     ];
                     this.selectedMonth = this.months[0];
                     this.years = getJsonArrayOfYears();
+                    this.selectedYear = this.years[0];
+                    this.dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
+                    this.dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
+                    this.protocol = "https";
+                    this.domain = "portal.captechventures.com";
+                    this.urlPath1 = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
+                    this.urlPath2 = "%27%29%20and%20%28DatePassed+lt+datetime%27";
+                    this.urlPath3 = "%27%29";
+                    this.certFilterUrl = this.protocol + "://" + this.domain + this.urlPath1 + this.dt_start + this.urlPath2 + this.dt_end + this.urlPath3;
                 }
-                AppComponent.prototype.onSelect = function (monthId) {
+                // Event Hander Functions----
+                AppComponent.prototype.onSelectMonth = function (monthId) {
                     this.selectedMonth = null;
                     for (var i = 0; i < this.months.length; i++) {
                         if (this.months[i].id == monthId) {
                             this.selectedMonth = this.months[i];
                         }
                     }
+                    this.buildSearchFilter();
+                };
+                AppComponent.prototype.onSelectYear = function (yearId) {
+                    this.selectedYear = null;
+                    for (var i = 0; i < this.years.length; i++) {
+                        if (this.years[i].id == yearId) {
+                            this.selectedYear = this.years[i];
+                        }
+                    }
+                    this.buildSearchFilter();
+                };
+                // Private Functions
+                AppComponent.prototype.buildSearchFilter = function () {
+                    this.dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
+                    this.dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
+                    this.certFilterUrl = this.protocol + "://" + this.domain + this.urlPath1 + this.dt_start + this.urlPath2 + this.dt_end + this.urlPath3;
                 };
                 AppComponent = __decorate([
                     core_1.Component({
