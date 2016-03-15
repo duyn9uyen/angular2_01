@@ -34,22 +34,23 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                         { "id": "11", "name": "November" },
                         { "id": "12", "name": "December" }
                     ];
+                    // -------- Public Properties ------------
                     this.selectedMonth = this.months[0];
                     this.years = this.getJsonArrayOfYears();
                     this.selectedYear = this.years[0];
-                    this.dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
-                    this.dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
-                    this.protocol = "https";
-                    this.domain = "portal.captechventures.com";
-                    this.urlPath1 = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
-                    this.urlPath2 = "%27%29%20and%20%28DatePassed+lt+datetime%27";
-                    this.urlPath3 = "%27%29";
-                    this.certFilterUrl = this.protocol + "://" + this.domain + this.urlPath1 + this.dt_start + this.urlPath2 + this.dt_end + this.urlPath3;
+                    // Todo: Get all the 'LearningPathValue' categories dynamically
+                    this.learningPathValues = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
+                    this.graphData = {
+                        currentSelectMonth: [],
+                        previousSelectMonth: []
+                    };
+                    this.barDataToDisplay = [];
+                    this.pieDataToDisplay = [];
                 }
                 AppComponent.prototype.ngOnInit = function () {
-                    this.loadBarChart(this);
+                    this.getAndRenderGraphs();
                 };
-                // Event Hander Functions----
+                // -------- Event Hander Functions -------
                 AppComponent.prototype.onSelectMonth = function (monthId) {
                     this.selectedMonth = null;
                     for (var i = 0; i < this.months.length; i++) {
@@ -57,8 +58,7 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                             this.selectedMonth = this.months[i];
                         }
                     }
-                    this.buildSearchFilter();
-                    this.loadBarChart(this);
+                    this.getAndRenderGraphs();
                 };
                 AppComponent.prototype.onSelectYear = function (yearId) {
                     this.selectedYear = null;
@@ -67,14 +67,35 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                             this.selectedYear = this.years[i];
                         }
                     }
-                    this.buildSearchFilter();
-                    this.loadBarChart(this);
+                    this.getAndRenderGraphs();
                 };
-                // Private Functions
+                // ---------- Private Functions ---------
+                AppComponent.prototype.getAndRenderGraphs = function () {
+                    // clear any previous data
+                    this.barDataToDisplay = [];
+                    this.pieDataToDisplay = [];
+                    this.getData();
+                    this.loadBarChart();
+                    this.loadPieChart();
+                };
+                AppComponent.prototype.getData = function () {
+                    this.buildSearchFilter();
+                    // Todo: call api with query to get data. Map retrieved data to the learningPath category in the array position        
+                    this.graphData.currentSelectMonth = [1, 5, 4, 3, 6];
+                    this.graphData.previousSelectMonth = [0, 7, 4, 2, 2];
+                    this.buildChartData();
+                };
                 AppComponent.prototype.buildSearchFilter = function () {
-                    this.dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
-                    this.dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
-                    this.certFilterUrl = this.protocol + "://" + this.domain + this.urlPath1 + this.dt_start + this.urlPath2 + this.dt_end + this.urlPath3;
+                    var dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
+                    var dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
+                    var protocol = "https";
+                    var domain = "portal.captechventures.com";
+                    var urlPath1 = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
+                    var urlPath2 = "%27%29%20and%20%28DatePassed+lt+datetime%27";
+                    var urlPath3 = "%27%29";
+                    dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
+                    dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
+                    this.certFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
                 };
                 AppComponent.prototype.getJsonArrayOfYears = function () {
                     var d = new Date();
@@ -90,45 +111,66 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                     }
                     return years;
                 };
-                AppComponent.prototype.loadBarChart = function (_this) {
-                    var previousMonthIndex = (parseInt(_this.selectedMonth.id) - 2);
+                AppComponent.prototype.buildChartData = function () {
+                    var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
                     var prevMonthName = '';
-                    var prevMonthYearName = _this.selectedYear.name;
-                    var currentMonthData = [133, 156, 947, 408, 6];
-                    var prevMonthData = [107, 31, 635, 203, 2];
+                    var prevMonthYearName = this.selectedYear.name;
                     // the previous month is in the same selected year
                     if (previousMonthIndex > -1) {
-                        prevMonthName = _this.months[previousMonthIndex].name;
+                        prevMonthName = this.months[previousMonthIndex].name;
                     }
                     else {
                         // the previous month is the year before the current selected year
                         var prevYearIndex = 0;
-                        for (var i = 0; i < _this.years.length; i++) {
-                            if (_this.years[i].id == _this.selectedYear.id) {
+                        for (var i = 0; i < this.years.length; i++) {
+                            if (this.years[i].id == this.selectedYear.id) {
                                 prevYearIndex = i + 1;
                             }
                         }
                         // if the previous year exists in our array, get the month name
-                        if (_this.years[prevYearIndex]) {
-                            prevMonthYearName = _this.years[prevYearIndex].name;
+                        if (this.years[prevYearIndex]) {
+                            prevMonthYearName = this.years[prevYearIndex].name;
                         }
                         else {
                             // no previous month because the year selected is the base year (no data available)
-                            prevMonthData = null;
+                            this.graphData.previousSelectMonth = null;
                         }
                         var absoluteVal = Math.abs(previousMonthIndex);
                         var prevMonthIndex = 12 - absoluteVal;
-                        prevMonthName = _this.months[prevMonthIndex].name;
+                        prevMonthName = this.months[prevMonthIndex].name;
                     }
                     // Here we build out the data object to display in the graph
-                    var _dataToDisplay = [];
-                    var currentSelectionJsonData = { "name": _this.selectedMonth.name + " " + _this.selectedYear.name, "data": currentMonthData };
-                    _dataToDisplay.push(currentSelectionJsonData);
-                    var prevMonthJsonData = { "name": prevMonthName + " " + prevMonthYearName, "data": prevMonthData };
+                    var currentSelectionBarData = { "name": this.selectedMonth.name + " " + this.selectedYear.name, "data": this.graphData.currentSelectMonth };
+                    this.barDataToDisplay.push(currentSelectionBarData);
+                    //this.pieDataToDisplay.push(currentSelectionBarData);
+                    var prevMonthBarData = { "name": prevMonthName + " " + prevMonthYearName, "data": this.graphData.previousSelectMonth };
                     // only add in the previous month data if we have it.
-                    if (prevMonthData) {
-                        _dataToDisplay.push(prevMonthJsonData);
+                    if (this.graphData.previousSelectMonth) {
+                        //instead of the javascript 'push' function, 
+                        // use unshift, which modifies the existing array by adding the arguments to the beginning:
+                        this.barDataToDisplay.unshift(prevMonthBarData);
                     }
+                    // Todo: Make this dynamic and smarter.
+                    var mobilePieData = ["Mobile", this.graphData.currentSelectMonth[0]];
+                    this.pieDataToDisplay.push(mobilePieData);
+                    var wCCPieData = ["WCC", this.graphData.currentSelectMonth[1]];
+                    this.pieDataToDisplay.push(wCCPieData);
+                    var serviceApiPieData = ["Services & APIs", this.graphData.currentSelectMonth[2]];
+                    this.pieDataToDisplay.push(serviceApiPieData);
+                    var cloudPieData = ["Cloud", this.graphData.currentSelectMonth[3]];
+                    this.pieDataToDisplay.push(cloudPieData);
+                    var devOpsPieData = ["DevOps", this.graphData.currentSelectMonth[4]];
+                    this.pieDataToDisplay.push(devOpsPieData);
+                    // example: 
+                    // data: [
+                    //     ['Mobile', 4],
+                    //     ['WCC', 8],
+                    //     ['Services & APIs', 2],
+                    //     ['Cloud', 5],
+                    //     ['DevOps', 3],                    
+                    // ]
+                };
+                AppComponent.prototype.loadBarChart = function () {
                     $('#bargraphContainer').highcharts({
                         chart: {
                             type: 'bar'
@@ -137,10 +179,10 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                             text: 'Certifications by Learning Path'
                         },
                         subtitle: {
-                            text: 'Month: ' + _this.selectedMonth.name
+                            text: 'Month: ' + this.selectedMonth.name
                         },
                         xAxis: {
-                            categories: ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'],
+                            categories: this.learningPathValues,
                             title: {
                                 text: null
                             }
@@ -179,7 +221,58 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                         credits: {
                             enabled: false
                         },
-                        series: _dataToDisplay
+                        // series: [{
+                        //     name: 'Year 1800',
+                        //     data: [107, 31, 635, 203, 2]
+                        // }, {
+                        //     name: 'Year 1900',
+                        //     data: [133, 156, 947, 408, 6]
+                        // }]
+                        series: this.barDataToDisplay
+                    });
+                };
+                AppComponent.prototype.loadPieChart = function () {
+                    $('#pieChartcContainer').highcharts({
+                        chart: {
+                            type: 'pie',
+                            options3d: {
+                                enabled: true,
+                                alpha: 45,
+                                beta: 0
+                            }
+                        },
+                        title: {
+                            text: 'Certifications by Learning Path'
+                        },
+                        subtitle: {
+                            text: 'Month: ' + this.selectedMonth.name
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                depth: 35,
+                                dataLabels: {
+                                    enabled: true,
+                                    format: '{point.name}'
+                                }
+                            }
+                        },
+                        series: [{
+                                type: 'pie',
+                                name: 'Browser share',
+                                // data: [
+                                //     ['Mobile', 4],
+                                //     ['WCC', 8],
+                                //     ['Services & APIs', 2],
+                                //     ['Cloud', 5],
+                                //     ['DevOps', 3],                    
+                                // ]
+                                data: this.pieDataToDisplay
+                            }]
                     });
                 };
                 AppComponent = __decorate([
