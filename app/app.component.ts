@@ -1,22 +1,57 @@
 import {Component} from 'angular2/core';
 import {OnInit} from 'angular2/core';
-import {bootstrap} from 'angular2/platform/browser'
 
 import {Month} from './month';
 import {Year} from './year';
 
+import {CertService} from './cert.service';
+import {LearnPathObj} from './learning-path-obj';
+
+import {Http, Response} from 'angular2/http'
+
 @Component({
 	selector: 'my-app',
 	//template: '<h1>My First Angular 2 App</h1>'
-    templateUrl: 'app/app.component.html'
+    templateUrl: 'app/app.component.html',
+    providers: [CertService],
+    //bindings: [CertService],
 })
 
 export class AppComponent implements OnInit  { 
+    testGetData: string;
+    testPostData: string
+    
+    constructor(
+        private _certService: CertService) {
+    }
     
     ngOnInit() {
         this.getAndRenderGraphs();
     }
-
+    
+    onTestGet() {
+        this._certService.getCurrentTime()
+        .subscribe(
+            // on success...
+            data => this.testGetData = JSON.stringify(data),
+            // on error
+            error => console.log("error getting data"),
+            // completed
+            () => console.log("finished getting data")
+        );
+    }
+    
+    onTestPost() {
+        this._certService.postJSON()
+            .subscribe(
+                data => this.testPostData = JSON.stringify(data),
+                error => console.log("error getting data"),
+                () => console.log("finished getting data")
+            );
+    }
+    
+    
+    
     months: Month[] = [
       { "id": "01", "name": "January" },
       { "id": "02", "name": "February" },
@@ -49,6 +84,9 @@ export class AppComponent implements OnInit  {
     
     barDataToDisplay = [];
     pieDataToDisplay = [];
+    //certifcationJsonData: Array<LearnPathObj>;;
+    
+    certifcationData: Object;
     
     // -------- Event Hander Functions -------
     onSelectMonth(monthId) { 
@@ -86,7 +124,17 @@ export class AppComponent implements OnInit  {
     private getData() {
         this.buildSearchFilter();
         
-        // Todo: call api with query to get data. Map retrieved data to the learningPath category in the array position        
+        // Todo: call api with query to get data. Map retrieved data to the learningPath category in the array position       
+        
+        //this.certifcationJsonData = this._certService.getCertTrackingByDate(this.certFilterUrl);    
+        
+        // this._certService.getCertTrackingByDate(this.certFilterUrl)
+        //     .then(certifcationJsonData => this.certifcationJsonData = certifcationJsonData);
+        
+        //this._certService.getCertTrackingByDate(this.certFilterUrl).subscribe(res => this.certifcationJsonData = res);
+        
+        //this.certifcationData = this._certService.getCertTrackingByDate(this.certFilterUrl);
+         
         this.graphData.currentSelectMonth = [1, 5, 4, 3, 6];
         this.graphData.previousSelectMonth = [0, 7, 4, 2, 2];
         

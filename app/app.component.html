@@ -22,7 +22,7 @@
     <h1>Certifications</h1>
     <br>
     <br>
-
+    
     <div class="row">
         <div class="col-xs-12 col-sm-3">
             Choose month:
@@ -43,9 +43,20 @@
     <br>
     <div class="row">
         <div class="col-xs-12">
-            <button class="btn btn-primary" (click)="btnClicked()">test button</button>
+            <button class="btn btn-primary" (click)="onTestGet()">test GET</button>
+            <button class="btn btn-primary" (click)="onTestPost()">test POST</button>
         </div>
     </div>
+    <br>
+    <strong>json GET response:</strong><br>
+    {{testGetData}}
+    <br>
+    <br>
+    <strong>json POST response:</strong><br>
+    {{testPostData}}
+    <br>
+    
+    <br>
     <div>Filter Url Built: {{certFilterUrl}}</div><br>
     
     <br>

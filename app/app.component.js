@@ -1,4 +1,4 @@
-System.register(['angular2/core'], function(exports_1, context_1) {
+System.register(['angular2/core', './cert.service'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,16 +10,20 @@ System.register(['angular2/core'], function(exports_1, context_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
+    var core_1, cert_service_1;
     var AppComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
+            },
+            function (cert_service_1_1) {
+                cert_service_1 = cert_service_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
-                function AppComponent() {
+                function AppComponent(_certService) {
+                    this._certService = _certService;
                     this.months = [
                         { "id": "01", "name": "January" },
                         { "id": "02", "name": "February" },
@@ -49,6 +53,22 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                 }
                 AppComponent.prototype.ngOnInit = function () {
                     this.getAndRenderGraphs();
+                };
+                AppComponent.prototype.onTestGet = function () {
+                    var _this = this;
+                    this._certService.getCurrentTime()
+                        .subscribe(
+                    // on success...
+                    function (data) { return _this.testGetData = JSON.stringify(data); }, 
+                    // on error
+                    function (error) { return console.log("error getting data"); }, 
+                    // completed
+                    function () { return console.log("finished getting data"); });
+                };
+                AppComponent.prototype.onTestPost = function () {
+                    var _this = this;
+                    this._certService.postJSON()
+                        .subscribe(function (data) { return _this.testPostData = JSON.stringify(data); }, function (error) { return console.log("error getting data"); }, function () { return console.log("finished getting data"); });
                 };
                 // -------- Event Hander Functions -------
                 AppComponent.prototype.onSelectMonth = function (monthId) {
@@ -80,7 +100,12 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                 };
                 AppComponent.prototype.getData = function () {
                     this.buildSearchFilter();
-                    // Todo: call api with query to get data. Map retrieved data to the learningPath category in the array position        
+                    // Todo: call api with query to get data. Map retrieved data to the learningPath category in the array position       
+                    //this.certifcationJsonData = this._certService.getCertTrackingByDate(this.certFilterUrl);    
+                    // this._certService.getCertTrackingByDate(this.certFilterUrl)
+                    //     .then(certifcationJsonData => this.certifcationJsonData = certifcationJsonData);
+                    //this._certService.getCertTrackingByDate(this.certFilterUrl).subscribe(res => this.certifcationJsonData = res);
+                    //this.certifcationData = this._certService.getCertTrackingByDate(this.certFilterUrl);
                     this.graphData.currentSelectMonth = [1, 5, 4, 3, 6];
                     this.graphData.previousSelectMonth = [0, 7, 4, 2, 2];
                     this.buildChartData();
@@ -279,9 +304,10 @@ System.register(['angular2/core'], function(exports_1, context_1) {
                     core_1.Component({
                         selector: 'my-app',
                         //template: '<h1>My First Angular 2 App</h1>'
-                        templateUrl: 'app/app.component.html'
+                        templateUrl: 'app/app.component.html',
+                        providers: [cert_service_1.CertService],
                     }), 
-                    __metadata('design:paramtypes', [])
+                    __metadata('design:paramtypes', [cert_service_1.CertService])
                 ], AppComponent);
                 return AppComponent;
             }());
