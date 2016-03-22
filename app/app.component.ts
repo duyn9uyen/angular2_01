@@ -53,9 +53,12 @@ export class AppComponent implements OnInit  {
         previousSelectMonth: [0, 0, 0, 0, 0]
     }
     
+    ignorePreviousMonth: boolean = false;
+    
     barDataToDisplay = [];
     pieDataToDisplay = [];
                 
+   // object graph to match json response. Add more properties if needed.            
    _currentData: {
        d : {
            results : [{
@@ -73,8 +76,6 @@ export class AppComponent implements OnInit  {
            }];
        }
    };
-    
-    certifcationData: Object;
     
     // ------------------------------------------- Public Functions ----------------------------------------------
     
@@ -138,6 +139,10 @@ export class AppComponent implements OnInit  {
         // clear any previous data
         this.barDataToDisplay = [];
         this.pieDataToDisplay = [];
+        this.graphData = {
+            currentSelectMonth: [0, 0, 0, 0, 0],
+            previousSelectMonth: [0, 0, 0, 0, 0]
+        }
         
         this.getData();
     }
@@ -148,8 +153,6 @@ export class AppComponent implements OnInit  {
         this._certService.getCertTrackingByDate(this.currentFilterUrl)
         .subscribe(
             // on success...
-            //data => this._data = data,
-            //data => this.testPostData = JSON.stringify(data),
             data => this.parseData(this._currentData, this.graphData.currentSelectMonth,  data),
             // on error
             error => console.log("error getting data"),
@@ -211,21 +214,48 @@ export class AppComponent implements OnInit  {
         var urlPath3: string = "%27%29";
     
         this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
+        console.log("currentFilterUrl: " + this.currentFilterUrl);
+        // ---- Building the previous month query filter
         
-        this.previousMonth = this.months[parseInt(this.selectedMonth.id) - 1];
+        // Getting the previous month and year
+        var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
+        var prevMonthYearName = this.selectedYear.name;
         
-        var prevYear = parseInt(this.selectedYear.id) - 1;
-        for (var i = 0; i < this.years.length; i++)
-        {
-          if (this.years[i].id == prevYear.toString()) {
-            this.previousYear = this.years[i];
-          }
+        // the previous month is in the same selected year
+        if(previousMonthIndex > -1) {
+            this.previousMonth = this.months[previousMonthIndex];
+            this.previousYear = this.selectedYear;
+        } else {
+            // the previous month is the year before the current selected year, 
+            // so loop through the years and find its index
+            var prevYearIndex = 0;
+            for (var i = 0; i < this.years.length; i++)
+            {
+                if (this.years[i].id == this.selectedYear.id) {
+                    prevYearIndex = i + 1;
+                }
+            }
+            
+            // if the previous year exists in our array, get the year
+            if(this.years[prevYearIndex]) {
+                this.previousYear = this.years[prevYearIndex];    
+                this.ignorePreviousMonth = false;
+            } else {
+                // no previous month because we have reached the base year (no data available)
+                this.ignorePreviousMonth = true;
+            }
+            
+            var absoluteVal = Math.abs(previousMonthIndex);
+            var prevMonthIndex = 12 - absoluteVal;
+            this.previousMonth = this.months[prevMonthIndex];
         }
         
-        var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
-        var previous_dt_end = this.previousYear.id + "-" + "0" + (parseInt(this.previousMonth.id) + 1).toString()  + "-01";
+        // ------
         
+        var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
+        var previous_dt_end = this.selectedYear.id + "-" + (this.selectedMonth.id).toString()  + "-01";
         this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
+        console.log("previousFilterUrl: " + this.previousFilterUrl);
     }
     
     private getJsonArrayOfYears() {
@@ -246,51 +276,20 @@ export class AppComponent implements OnInit  {
     
     private buildChartData() {
         
-        // Getting the previous month and year
-        var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
-        var prevMonthName = '';
-        var prevMonthYearName = this.selectedYear.name;
-        
-        // the previous month is in the same selected year
-        if(previousMonthIndex > -1) {
-            prevMonthName = this.months[previousMonthIndex].name;
-        } else {
-            // the previous month is the year before the current selected year, so loop through the years and find it
-            var prevYearIndex = 0;
-            for (var i = 0; i < this.years.length; i++)
-            {
-                if (this.years[i].id == this.selectedYear.id) {
-                    prevYearIndex = i + 1;
-                }
-            }
-            
-            // if the previous year exists in our array, get the month name
-            if(this.years[prevYearIndex]) {
-                prevMonthYearName = this.years[prevYearIndex].name;    
-            } else {
-                // no previous month because the year selected is the base year (no data available)
-                this.graphData.previousSelectMonth = null;
-            }
-            
-            var absoluteVal = Math.abs(previousMonthIndex);
-            var prevMonthIndex = 12 - absoluteVal;
-            prevMonthName = this.months[prevMonthIndex].name;
-        }
-        
         // Here we build out the data object to display in the graph
         var currentSelectionBarData = {"name": this.selectedMonth.name + " " + this.selectedYear.name, "data": this.graphData.currentSelectMonth };
         this.barDataToDisplay.push(currentSelectionBarData);
             
-        var prevMonthBarData = {"name": prevMonthName + " " + prevMonthYearName, "data": this.graphData.previousSelectMonth };
+        var prevMonthBarData = {"name": this.previousMonth.name + " " + this.previousYear.name, "data": this.graphData.previousSelectMonth };
         // only add in the previous month data if we have it.
-        if(this.graphData.previousSelectMonth) {
+        if(this.ignorePreviousMonth == false) {
             //instead of the javascript 'push' function, 
             // use unshift, which modifies the existing array by adding the arguments to the beginning:
             this.barDataToDisplay.unshift(prevMonthBarData);
         }
         
-        
         // Todo: Make this dynamic and smarter.
+        // 
         var mobilePieData = ["Mobile", this.graphData.currentSelectMonth[0]]
         this.pieDataToDisplay.push(mobilePieData);
         
