@@ -37,40 +37,10 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/add/operator/map'], fun
                 }
                 CertService.prototype.getCertTrackingByDate = function (filterUrl) {
                     filterUrl = "https://portal.captechventures.com/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
-                    // this.http.get('http://localhost:3000/certifications.json')
-                    //     // Call map on the response observable to get the parsed object
-                    //     .map(res => res.json())
-                    //     // Subscribe to the observable to get the parsed object and attach it to the component
-                    //     .subscribe(
-                    //         data => this.certJsonData = data
-                    //         // ,
-                    //         // err => console.log(err),
-                    //         // () => console.log('Complete')
-                    //     );
-                    // return this.certJsonData;
-                    // return an observable
-                    // return this.http.get('/certifications.json')
-                    // .map( (responseData) => {
-                    //     return responseData.json();
-                    // })
-                    // .map((learnPaths: Array<any>) => {
-                    //     let result:Array<LearnPathObj> = [];
-                    //     if (learnPaths) {
-                    //         learnPaths.forEach((learnPath) => {
-                    //         result.push(
-                    //             new LearnPathObj(learnPath.id, 
-                    //                     learnPath.learningPathValue));
-                    //         });
-                    //     }
-                    //     return result;
-                    // });
-                    // this.result = {friends:[]};
-                    // this._http.get('./friends.json')
-                    //     .map((res: Response) => res.json())
-                    //     .subscribe(res => this.result = res);
-                    // return this.result;
+                    return this._http.get('http://localhost:3000/app/certifications.json')
+                        .map(function (res) { return res.json(); });
                 };
-                CertService.prototype.getCurrentTime = function () {
+                CertService.prototype.getJsonTest = function () {
                     //expect this json from http://date.jsontest.com
                     // {
                     //     "time": "03:53:25 AM",
@@ -78,14 +48,16 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/add/operator/map'], fun
                     //     "date": "03-02-2013"
                     // }
                     // Another url to test with: http://jsonplaceholder.typicode.com/posts/1
-                    return this._http.get('http://date.jsontest.com')
+                    return this._http.get('http://localhost:3000/app/friends.json')
                         .map(function (res) { return res.json(); });
                 };
-                CertService.prototype.postJSON = function () {
+                CertService.prototype.postJsonTest = function () {
                     var json = JSON.stringify({ something: 'test', somethingElse: 3 });
                     var params = 'json=' + json;
                     var headers = new http_1.Headers();
                     headers.append('Content-Type', 'application/x-www-form-urlencoded)');
+                    headers.append('Access-Control-Allow-Origin', '*');
+                    headers.append('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
                     return this._http.post('http://validate.jsontest.com', params, { headers: headers }) // optinal arguments
                         .map(function (res) { return res.json(); });
                 };

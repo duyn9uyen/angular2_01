@@ -22,6 +22,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
             }],
         execute: function() {
             AppComponent = (function () {
+                // ------------------------------------------- Public Functions ----------------------------------------------
                 function AppComponent(_certService) {
                     this._certService = _certService;
                     this.months = [
@@ -38,15 +39,19 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                         { "id": "11", "name": "November" },
                         { "id": "12", "name": "December" }
                     ];
-                    // -------- Public Properties ------------
                     this.selectedMonth = this.months[0];
+                    this.previousMonth = this.months[0];
+                    this.baseYear = 2015;
                     this.years = this.getJsonArrayOfYears();
                     this.selectedYear = this.years[0];
+                    this.previousYear = this.years[0];
                     // Todo: Get all the 'LearningPathValue' categories dynamically
-                    this.learningPathValues = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
+                    this.learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
+                    // array that holds all the counts for each LearningPathValue. Index order is the same as the learningPaths array.
+                    // ie. Mobile = currentSelectMonth[0], WCC = currentSelectMonth[1], etc.
                     this.graphData = {
-                        currentSelectMonth: [],
-                        previousSelectMonth: []
+                        currentSelectMonth: [0, 0, 0, 0, 0],
+                        previousSelectMonth: [0, 0, 0, 0, 0]
                     };
                     this.barDataToDisplay = [];
                     this.pieDataToDisplay = [];
@@ -56,7 +61,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                 };
                 AppComponent.prototype.onTestGet = function () {
                     var _this = this;
-                    this._certService.getCurrentTime()
+                    this._certService.getJsonTest()
                         .subscribe(
                     // on success...
                     function (data) { return _this.testGetData = JSON.stringify(data); }, 
@@ -67,8 +72,8 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                 };
                 AppComponent.prototype.onTestPost = function () {
                     var _this = this;
-                    this._certService.postJSON()
-                        .subscribe(function (data) { return _this.testPostData = JSON.stringify(data); }, function (error) { return console.log("error getting data"); }, function () { return console.log("finished getting data"); });
+                    this._certService.postJsonTest()
+                        .subscribe(function (data) { return _this.testPostData = JSON.stringify(data); }, function (error) { return console.log("error posting data"); }, function () { return console.log("finished getting data"); });
                 };
                 // -------- Event Hander Functions -------
                 AppComponent.prototype.onSelectMonth = function (monthId) {
@@ -89,26 +94,66 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     }
                     this.getAndRenderGraphs();
                 };
-                // ---------- Private Functions ---------
+                AppComponent.prototype.onGenerateCharts = function () {
+                    this.getAndRenderGraphs();
+                };
+                // ------------------------------------------- Private Functions ----------------------------------------------
                 AppComponent.prototype.getAndRenderGraphs = function () {
                     // clear any previous data
                     this.barDataToDisplay = [];
                     this.pieDataToDisplay = [];
                     this.getData();
-                    this.loadBarChart();
-                    this.loadPieChart();
                 };
                 AppComponent.prototype.getData = function () {
+                    var _this = this;
                     this.buildSearchFilter();
-                    // Todo: call api with query to get data. Map retrieved data to the learningPath category in the array position       
-                    //this.certifcationJsonData = this._certService.getCertTrackingByDate(this.certFilterUrl);    
-                    // this._certService.getCertTrackingByDate(this.certFilterUrl)
-                    //     .then(certifcationJsonData => this.certifcationJsonData = certifcationJsonData);
-                    //this._certService.getCertTrackingByDate(this.certFilterUrl).subscribe(res => this.certifcationJsonData = res);
-                    //this.certifcationData = this._certService.getCertTrackingByDate(this.certFilterUrl);
-                    this.graphData.currentSelectMonth = [1, 5, 4, 3, 6];
-                    this.graphData.previousSelectMonth = [0, 7, 4, 2, 2];
+                    this._certService.getCertTrackingByDate(this.currentFilterUrl)
+                        .subscribe(
+                    // on success...
+                    //data => this._data = data,
+                    //data => this.testPostData = JSON.stringify(data),
+                    function (data) { return _this.parseData(_this._currentData, _this.graphData.currentSelectMonth, data); }, 
+                    // on error
+                    function (error) { return console.log("error getting data"); }, 
+                    // completed
+                    function () { return console.log("finished getting data"); });
+                    this._certService.getCertTrackingByDate(this.previousFilterUrl)
+                        .subscribe(
+                    // on success...
+                    function (data) { return _this.parseData(_this._previousData, _this.graphData.previousSelectMonth, data); }, 
+                    // on error
+                    function (error) { return console.log("error getting data"); }, 
+                    // completed
+                    function () { return _this.buildAndLoadCharts(); });
+                };
+                AppComponent.prototype.parseData = function (_data, _counts, dataFromService) {
+                    _data = dataFromService;
+                    // loop through arrays and find all LearningPathvalue and their counts (LearningPathvalue is the category of cert)
+                    for (var i = 0; i < _data.d.results.length; i++) {
+                        //['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
+                        switch (_data.d.results[i].LearningPathValue) {
+                            case "Mobile":
+                                _counts[0]++;
+                                break;
+                            case "WCC":
+                                _counts[1]++;
+                                break;
+                            case "Services & APIs":
+                                _counts[2]++;
+                                break;
+                            case "Cloud":
+                                _counts[3]++;
+                                break;
+                            case "DevOps":
+                                _counts[4]++;
+                                break;
+                        }
+                    }
+                };
+                AppComponent.prototype.buildAndLoadCharts = function () {
                     this.buildChartData();
+                    this.loadBarChart();
+                    this.loadPieChart();
                 };
                 AppComponent.prototype.buildSearchFilter = function () {
                     var dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
@@ -118,15 +163,22 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     var urlPath1 = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
                     var urlPath2 = "%27%29%20and%20%28DatePassed+lt+datetime%27";
                     var urlPath3 = "%27%29";
-                    dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
-                    dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
-                    this.certFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
+                    this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
+                    this.previousMonth = this.months[parseInt(this.selectedMonth.id) - 1];
+                    var prevYear = parseInt(this.selectedYear.id) - 1;
+                    for (var i = 0; i < this.years.length; i++) {
+                        if (this.years[i].id == prevYear.toString()) {
+                            this.previousYear = this.years[i];
+                        }
+                    }
+                    var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
+                    var previous_dt_end = this.previousYear.id + "-" + "0" + (parseInt(this.previousMonth.id) + 1).toString() + "-01";
+                    this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
                 };
                 AppComponent.prototype.getJsonArrayOfYears = function () {
                     var d = new Date();
                     var currentYear = d.getFullYear(); // current year
-                    var baseYear = 2015;
-                    var difference = currentYear - baseYear;
+                    var difference = currentYear - this.baseYear;
                     var years = [];
                     // add in the current year the any previous years until the base year
                     for (var index = 0; index <= difference; index++) {
@@ -137,6 +189,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     return years;
                 };
                 AppComponent.prototype.buildChartData = function () {
+                    // Getting the previous month and year
                     var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
                     var prevMonthName = '';
                     var prevMonthYearName = this.selectedYear.name;
@@ -145,7 +198,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                         prevMonthName = this.months[previousMonthIndex].name;
                     }
                     else {
-                        // the previous month is the year before the current selected year
+                        // the previous month is the year before the current selected year, so loop through the years and find it
                         var prevYearIndex = 0;
                         for (var i = 0; i < this.years.length; i++) {
                             if (this.years[i].id == this.selectedYear.id) {
@@ -167,7 +220,6 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     // Here we build out the data object to display in the graph
                     var currentSelectionBarData = { "name": this.selectedMonth.name + " " + this.selectedYear.name, "data": this.graphData.currentSelectMonth };
                     this.barDataToDisplay.push(currentSelectionBarData);
-                    //this.pieDataToDisplay.push(currentSelectionBarData);
                     var prevMonthBarData = { "name": prevMonthName + " " + prevMonthYearName, "data": this.graphData.previousSelectMonth };
                     // only add in the previous month data if we have it.
                     if (this.graphData.previousSelectMonth) {
@@ -186,14 +238,6 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.pieDataToDisplay.push(cloudPieData);
                     var devOpsPieData = ["DevOps", this.graphData.currentSelectMonth[4]];
                     this.pieDataToDisplay.push(devOpsPieData);
-                    // example: 
-                    // data: [
-                    //     ['Mobile', 4],
-                    //     ['WCC', 8],
-                    //     ['Services & APIs', 2],
-                    //     ['Cloud', 5],
-                    //     ['DevOps', 3],                    
-                    // ]
                 };
                 AppComponent.prototype.loadBarChart = function () {
                     $('#bargraphContainer').highcharts({
@@ -207,7 +251,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                             text: 'Month: ' + this.selectedMonth.name
                         },
                         xAxis: {
-                            categories: this.learningPathValues,
+                            categories: this.learningPaths,
                             title: {
                                 text: null
                             }
@@ -303,9 +347,8 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                 AppComponent = __decorate([
                     core_1.Component({
                         selector: 'my-app',
-                        //template: '<h1>My First Angular 2 App</h1>'
                         templateUrl: 'app/app.component.html',
-                        providers: [cert_service_1.CertService],
+                        providers: [cert_service_1.CertService]
                     }), 
                     __metadata('design:paramtypes', [cert_service_1.CertService])
                 ], AppComponent);

@@ -1,6 +1,5 @@
 import {Injectable} from 'angular2/core';
 import {Http, Response, Headers} from 'angular2/http';
-import {LearnPathObj} from './learning-path-obj';
 import 'rxjs/add/operator/map';
 
 // note: If you are geting this error in CHROME:
@@ -19,54 +18,14 @@ export class CertService {
         console.log('Service created.', _http);
     }
     
-    //certJsonData: Array<any>;
-    result: Object;
-  
     getCertTrackingByDate(filterUrl: string) {
         filterUrl = "https://portal.captechventures.com/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
         
-        // this.http.get('http://localhost:3000/certifications.json')
-        //     // Call map on the response observable to get the parsed object
-        //     .map(res => res.json())
-        //     // Subscribe to the observable to get the parsed object and attach it to the component
-        //     .subscribe(
-        //         data => this.certJsonData = data
-        //         // ,
-        //         // err => console.log(err),
-        //         // () => console.log('Complete')
-        //     );
-        
-       // return this.certJsonData;
-       
-       
-        // return an observable
-        // return this.http.get('/certifications.json')
-        // .map( (responseData) => {
-        //     return responseData.json();
-        // })
-        // .map((learnPaths: Array<any>) => {
-        //     let result:Array<LearnPathObj> = [];
-        //     if (learnPaths) {
-        //         learnPaths.forEach((learnPath) => {
-        //         result.push(
-        //             new LearnPathObj(learnPath.id, 
-        //                     learnPath.learningPathValue));
-        //         });
-        //     }
-        //     return result;
-        // });
-        
-        
-        
-        // this.result = {friends:[]};
-        // this._http.get('./friends.json')
-        //     .map((res: Response) => res.json())
-        //     .subscribe(res => this.result = res);
-            
-        // return this.result;
+        return this._http.get('http://localhost:3000/app/certifications.json')
+                .map(res => res.json());
     }
     
-    getCurrentTime() {
+    getJsonTest() {
         
         //expect this json from http://date.jsontest.com
         // {
@@ -77,15 +36,18 @@ export class CertService {
         
         // Another url to test with: http://jsonplaceholder.typicode.com/posts/1
 
-        return this._http.get('http://date.jsontest.com')
+        return this._http.get('http://localhost:3000/app/friends.json')
                 .map(res => res.json());
     }
     
-    postJSON() {
+    postJsonTest() {
         var json = JSON.stringify({ something: 'test', somethingElse: 3 });
         var params = 'json=' + json;
         var headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded)');
+        
+        headers.append('Access-Control-Allow-Origin', '*');
+        headers.append('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
         
         return this._http.post('http://validate.jsontest.com',
             params, 
