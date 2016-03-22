@@ -1,25 +1,14 @@
-
-<!--<div>
-    Choose month:
-    <select>
-        <option value='01'>January</option>
-        <option value='02'>Feburary</option>
-        <option value='03'>March</option>
-        <option value='04'>April</option>
-        <option value='05'>May</option>
-        <option value='06'>June</option>
-        <option value='07'>July</option>
-        <option value='08'>August</option>
-        <option value='09'>September</option>
-        <option value='10'>October</option>
-        <option value='11'>November</option>
-        <option value='12'>December</option>
-    </select> 
-</div>-->
-
-
 <div class="container">
-    <h1>Certifications</h1>
+    <h3>Choose A Report</h3>
+    
+    <div class="row">
+        <div class="col-xs-12 col-sm-3">
+            Choose a Report:
+            <select class="form-control" (change)="onSelectReport($event.target.value)">
+                <option *ngFor="#reportType of typeOfReports" [value]="reportType.id">{{reportType.name}}</option>
+            </select>
+        </div>
+    </div>
     <br>
     <br>
     
@@ -29,18 +18,18 @@
             <select class="form-control" (change)="onSelectMonth($event.target.value)">
                 <option *ngFor="#month of months" [value]="month.id">{{month.name}}</option>
             </select>
-            <div>selection={{selectedMonth.name}}</div>
+            <!--<div>selection={{selectedMonth.name}}</div>-->
         </div>
         <div class="col-xs-12 col-sm-3">
             Choose year:
             <select class="form-control" (change)="onSelectYear($event.target.value)">
                 <option *ngFor="#year of years" [value]="year.id">{{year.name}}</option>
             </select>
-            <div>selection={{selectedYear.name}}</div>
+            <!--<div>selection={{selectedYear.name}}</div>-->
         </div>
     </div>
     
-    <br>
+    <!--<br>
     <div class="row">
         <div class="col-xs-12">
             <button class="btn btn-primary" (click)="onTestGet()">test GET</button>
@@ -58,15 +47,27 @@
     <br>
     
     <br>
-    <div>Filter Url Built: {{certFilterUrl}}</div><br>
+    <div>Filter Url Built: {{certFilterUrl}}</div><br>-->
+    
+    <!--Certifications-->
+    selectedReport.id : {{selectedReport.id}}
+    <div [ngClass]="{displayNone : selectedReport.id != 1}">
+        <div id="spin"></div>
+        <br>
+        <br>
+        <div id="bargraphContainer" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 0"></div>
+        
+        <br>
+        <br>
+        <div id="pieChartcContainer" style="height: 400px; max-width: 800px; margin: 0 0;"></div>
+    </div>    
     
     <br>
     <br>
-    <div id="bargraphContainer" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 0"></div>
-    
-    <br>
-    <br>
-    <div id="pieChartcContainer" style="height: 400px; max-width: 800px; margin: 0 0;"></div>
+    <!--Tech Challenges-->
+    <div [ngClass]="{displayNone : selectedReport.id != 2}">
+        <p>...coming soon!</p>
+    </div>    
     
 </div>
 

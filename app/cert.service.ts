@@ -19,9 +19,9 @@ export class CertService {
     }
     
     getCertTrackingByDate(filterUrl: string) {
-        filterUrl = "https://portal.captechventures.com/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
+        filterUrl = "http://localhost:3000/app/certifications.json";
         
-        return this._http.get('http://localhost:3000/app/certifications.json')
+        return this._http.get(filterUrl)
                 .map(res => res.json());
     }
     

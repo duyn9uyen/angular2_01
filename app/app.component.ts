@@ -2,6 +2,7 @@ import {Component} from 'angular2/core';
 import {OnInit} from 'angular2/core';
 import {Http, Response} from 'angular2/http'
 
+import {ReportType} from './report-type';
 import {Month} from './month';
 import {Year} from './year';
 import {CertService} from './cert.service';
@@ -17,7 +18,12 @@ export class AppComponent implements OnInit  {
     // --------------------------------------------- Public Properties ----------------------------------------------
     
     testGetData: string;
-    testPostData: string
+    testPostData: string;
+    
+    typeOfReports: ReportType[] = [
+        { "id": "1", "name": "Certifications" },
+        { "id": "2", "name": "Tech Challenges" }
+    ];
     
     months: Month[] = [
       { "id": "01", "name": "January" },
@@ -34,6 +40,7 @@ export class AppComponent implements OnInit  {
       { "id": "12", "name": "December" }
     ];
     
+    selectedReport: ReportType = this.typeOfReports[0];
     selectedMonth: Month = this.months[0];
     previousMonth: Month = this.months[0];
     baseYear = 2015;    
@@ -109,6 +116,17 @@ export class AppComponent implements OnInit  {
     }
     
     // -------- Event Hander Functions -------
+    onSelectReport(reportId) { 
+        this.selectedReport = null;
+        for (var i = 0; i < this.typeOfReports.length; i++)
+        {
+          if (this.typeOfReports[i].id == reportId) {
+            this.selectedReport = this.typeOfReports[i];
+          }
+        }
+        //this.getAndRenderGraphs();
+    }
+    
     onSelectMonth(monthId) { 
         this.selectedMonth = null;
         for (var i = 0; i < this.months.length; i++)
@@ -136,6 +154,10 @@ export class AppComponent implements OnInit  {
     
     // ------------------------------------------- Private Functions ----------------------------------------------
     private getAndRenderGraphs() {
+        
+        //var el = $('<div>').appendTo('body').spin();
+        var el = $('#spin').spin({ color: '#333', shadow: false })
+        
         // clear any previous data
         this.barDataToDisplay = [];
         this.pieDataToDisplay = [];
@@ -202,6 +224,7 @@ export class AppComponent implements OnInit  {
         this.buildChartData();
         this.loadBarChart();
         this.loadPieChart();
+        $('#spin').spin(false);
     }
     
     private buildSearchFilter() {
@@ -417,5 +440,6 @@ export class AppComponent implements OnInit  {
 }
 
 $(document).ready(function(){
-    //alert("jquery");
+    // alert("jquery");
+    // var el = $('#spin').spin({ color: '#333', shadow: false })
 });

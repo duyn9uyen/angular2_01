@@ -25,6 +25,10 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                 // ------------------------------------------- Public Functions ----------------------------------------------
                 function AppComponent(_certService) {
                     this._certService = _certService;
+                    this.typeOfReports = [
+                        { "id": "1", "name": "Certifications" },
+                        { "id": "2", "name": "Tech Challenges" }
+                    ];
                     this.months = [
                         { "id": "01", "name": "January" },
                         { "id": "02", "name": "February" },
@@ -39,6 +43,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                         { "id": "11", "name": "November" },
                         { "id": "12", "name": "December" }
                     ];
+                    this.selectedReport = this.typeOfReports[0];
                     this.selectedMonth = this.months[0];
                     this.previousMonth = this.months[0];
                     this.baseYear = 2015;
@@ -77,6 +82,15 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                         .subscribe(function (data) { return _this.testPostData = JSON.stringify(data); }, function (error) { return console.log("error posting data"); }, function () { return console.log("finished getting data"); });
                 };
                 // -------- Event Hander Functions -------
+                AppComponent.prototype.onSelectReport = function (reportId) {
+                    this.selectedReport = null;
+                    for (var i = 0; i < this.typeOfReports.length; i++) {
+                        if (this.typeOfReports[i].id == reportId) {
+                            this.selectedReport = this.typeOfReports[i];
+                        }
+                    }
+                    //this.getAndRenderGraphs();
+                };
                 AppComponent.prototype.onSelectMonth = function (monthId) {
                     this.selectedMonth = null;
                     for (var i = 0; i < this.months.length; i++) {
@@ -100,6 +114,8 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                 };
                 // ------------------------------------------- Private Functions ----------------------------------------------
                 AppComponent.prototype.getAndRenderGraphs = function () {
+                    //var el = $('<div>').appendTo('body').spin();
+                    var el = $('#spin').spin({ color: '#333', shadow: false });
                     // clear any previous data
                     this.barDataToDisplay = [];
                     this.pieDataToDisplay = [];
@@ -157,6 +173,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.buildChartData();
                     this.loadBarChart();
                     this.loadPieChart();
+                    $('#spin').spin(false);
                 };
                 AppComponent.prototype.buildSearchFilter = function () {
                     var dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
@@ -359,7 +376,8 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
             }());
             exports_1("AppComponent", AppComponent);
             $(document).ready(function () {
-                //alert("jquery");
+                // alert("jquery");
+                // var el = $('#spin').spin({ color: '#333', shadow: false })
             });
         }
     }

@@ -36,8 +36,8 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/add/operator/map'], fun
                     console.log('Service created.', _http);
                 }
                 CertService.prototype.getCertTrackingByDate = function (filterUrl) {
-                    filterUrl = "https://portal.captechventures.com/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
-                    return this._http.get('http://localhost:3000/app/certifications.json')
+                    filterUrl = "http://localhost:3000/app/certifications.json";
+                    return this._http.get(filterUrl)
                         .map(function (res) { return res.json(); });
                 };
                 CertService.prototype.getJsonTest = function () {
