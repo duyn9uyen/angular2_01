@@ -1,7 +1,9 @@
+// sytem imports
 import {Component} from 'angular2/core';
 import {OnInit} from 'angular2/core';
 import {Http, Response} from 'angular2/http'
 
+// custom imports
 import {ReportType} from './report-type';
 import {Month} from './month';
 import {Year} from './year';
@@ -26,23 +28,23 @@ export class AppComponent implements OnInit  {
     ];
     
     months: Month[] = [
-      { "id": "01", "name": "January" },
-      { "id": "02", "name": "February" },
-      { "id": "03", "name": "March" },
-      { "id": "04", "name": "April" },
-      { "id": "05", "name": "May" },
-      { "id": "06", "name": "June" },
-      { "id": "07", "name": "July" },
-      { "id": "08", "name": "August" },
-      { "id": "09", "name": "September" },
-      { "id": "10", "name": "October" },
-      { "id": "11", "name": "November" },
-      { "id": "12", "name": "December" }
+      { "id": "01", "name": "January", "disabled" : false },
+      { "id": "02", "name": "February", "disabled" : false },
+      { "id": "03", "name": "March", "disabled" : false },
+      { "id": "04", "name": "April", "disabled" : false },
+      { "id": "05", "name": "May", "disabled" : false },
+      { "id": "06", "name": "June", "disabled" : false },
+      { "id": "07", "name": "July", "disabled" : false },
+      { "id": "08", "name": "August", "disabled" : false },
+      { "id": "09", "name": "September", "disabled" : false },
+      { "id": "10", "name": "October", "disabled" : false },
+      { "id": "11", "name": "November", "disabled" : false },
+      { "id": "12", "name": "December", "disabled" : false }
     ];
     
-    selectedReport: ReportType = this.typeOfReports[0];
-    selectedMonth: Month = this.months[0];
-    previousMonth: Month = this.months[0];
+    selectedReport: ReportType = this.typeOfReports[0]; //defaults to the certification report (The html UI select)
+    selectedMonth: Month;
+    previousMonth: Month = this.selectedMonth;
     baseYear = 2015;    
     years: Year[] = this.getJsonArrayOfYears();
     selectedYear: Year = this.years[0];
@@ -50,7 +52,7 @@ export class AppComponent implements OnInit  {
     currentFilterUrl: string;
     previousFilterUrl: string;
     
-    // Todo: Get all the 'LearningPathValue' categories dynamically
+    // Todo: Can we get all available 'LearningPathValue' categories dynamically?
     learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
 
     // array that holds all the counts for each LearningPathValue. Index order is the same as the learningPaths array.
@@ -91,7 +93,10 @@ export class AppComponent implements OnInit  {
     }
     
     ngOnInit() {
-        this.getAndRenderGraphs();
+        this.disableFutureMonths();
+        if(this.selectedReport.id == "1") {
+            this.getAndRenderGraphs();    
+        }
     }
     
     onTestGet() {
@@ -115,7 +120,7 @@ export class AppComponent implements OnInit  {
             );
     }
     
-    // -------- Event Hander Functions -------
+    // ------------------------------------------- Event Hander Functions ----------------------------------------------
     onSelectReport(reportId) { 
         this.selectedReport = null;
         for (var i = 0; i < this.typeOfReports.length; i++)
@@ -124,7 +129,11 @@ export class AppComponent implements OnInit  {
             this.selectedReport = this.typeOfReports[i];
           }
         }
-        //this.getAndRenderGraphs();
+        
+        if(this.selectedReport.id == "1") {
+            this.getAndRenderGraphs();    
+        }
+        
     }
     
     onSelectMonth(monthId) { 
@@ -145,6 +154,7 @@ export class AppComponent implements OnInit  {
             this.selectedYear = this.years[i];
           }
         }
+        this.disableFutureMonths();
         this.getAndRenderGraphs();
     }
     
@@ -238,7 +248,8 @@ export class AppComponent implements OnInit  {
     
         this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
         console.log("currentFilterUrl: " + this.currentFilterUrl);
-        // ---- Building the previous month query filter
+        
+        // ---- Build the previous month query filter
         
         // Getting the previous month and year
         var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
@@ -327,6 +338,41 @@ export class AppComponent implements OnInit  {
         
         var devOpsPieData = ["DevOps", this.graphData.currentSelectMonth[4]]
         this.pieDataToDisplay.push(devOpsPieData);
+    }
+    
+    private disableFutureMonths() {
+        var d = new Date();
+        var monthId = "0" + (d.getMonth() + 1).toString(); // getMonth() is 0-indexed. So add 1
+        var thisYear = d.getFullYear(); 
+        var monthFound = false;
+        for (var i = 0; i < this.months.length; i++)
+        {
+          // disable future months from the drop down menu
+          if(monthFound && this.selectedYear.id == thisYear.toString()) {
+            this.months[i].disabled = true;
+          } else {
+            this.months[i].disabled = false;
+          }
+          
+          if (this.months[i].id == monthId) {
+            monthFound = true;
+          }
+        }
+        
+        if(monthFound && this.selectedYear.id == thisYear.toString()) {
+            this.defaultToCurrentMonth();
+        }
+    }
+    
+    private defaultToCurrentMonth() {
+        var d = new Date();
+        var monthId = "0" + (d.getMonth() + 1).toString(); // getMonth() is 0-indexed. So add 1
+        for (var i = 0; i < this.months.length; i++)
+        {
+          if (this.months[i].id == monthId) {
+            this.selectedMonth = this.months[i];
+          }
+        }
     }
     
     private loadBarChart() {

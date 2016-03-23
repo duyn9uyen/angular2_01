@@ -1,3 +1,17 @@
 .displayNone {
     display: none;
 }
+
+.margin-top-down-5 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.margin-top-down-10 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+option:disabled {
+    background-color: lightgray
+}

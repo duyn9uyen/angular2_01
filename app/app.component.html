@@ -1,33 +1,20 @@
 <div class="container">
-    <h3>Choose A Report</h3>
+    <h3>Reports</h3>
     
     <div class="row">
         <div class="col-xs-12 col-sm-3">
             Choose a Report:
             <select class="form-control" (change)="onSelectReport($event.target.value)">
-                <option *ngFor="#reportType of typeOfReports" [value]="reportType.id">{{reportType.name}}</option>
+                <option *ngFor="#reportType of typeOfReports" 
+                    [value]="reportType.id" 
+                    [selected]="reportType.id == 1">
+                    {{reportType.name}}
+                </option>
             </select>
         </div>
     </div>
     <br>
     <br>
-    
-    <div class="row">
-        <div class="col-xs-12 col-sm-3">
-            Choose month:
-            <select class="form-control" (change)="onSelectMonth($event.target.value)">
-                <option *ngFor="#month of months" [value]="month.id">{{month.name}}</option>
-            </select>
-            <!--<div>selection={{selectedMonth.name}}</div>-->
-        </div>
-        <div class="col-xs-12 col-sm-3">
-            Choose year:
-            <select class="form-control" (change)="onSelectYear($event.target.value)">
-                <option *ngFor="#year of years" [value]="year.id">{{year.name}}</option>
-            </select>
-            <!--<div>selection={{selectedYear.name}}</div>-->
-        </div>
-    </div>
     
     <!--<br>
     <div class="row">
@@ -50,8 +37,30 @@
     <div>Filter Url Built: {{certFilterUrl}}</div><br>-->
     
     <!--Certifications-->
-    selectedReport.id : {{selectedReport.id}}
+    <!--selectedReport.id : {{selectedReport.id}}-->
     <div [ngClass]="{displayNone : selectedReport.id != 1}">
+        <div class="row">
+            <div class="col-xs-12 col-sm-3 margin-top-down-10">
+                Choose month:
+                <select class="form-control" (change)="onSelectMonth($event.target.value)">
+                    <option *ngFor="#month of months" 
+                        [value]="month.id" 
+                        [selected]="selectedMonth.id == month.id"
+                        [disabled]="month.disabled">
+                        {{month.name}}
+                    </option>
+                </select>
+                <!--<div>selection={{selectedMonth.id}}</div>-->
+            </div>
+            <div class="col-xs-12 col-sm-3 margin-top-down-10">
+                Choose year:
+                <select class="form-control" (change)="onSelectYear($event.target.value)">
+                    <option *ngFor="#year of years" [value]="year.id">{{year.name}}</option>
+                </select>
+                <!--<div>selection={{selectedYear.name}}</div>-->
+            </div>
+        </div>
+        
         <div id="spin"></div>
         <br>
         <br>

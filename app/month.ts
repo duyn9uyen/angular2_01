@@ -4,4 +4,5 @@
 export interface Month {
     id: string;
     name: string;
+    disabled: boolean;
 }

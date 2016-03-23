@@ -30,27 +30,26 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                         { "id": "2", "name": "Tech Challenges" }
                     ];
                     this.months = [
-                        { "id": "01", "name": "January" },
-                        { "id": "02", "name": "February" },
-                        { "id": "03", "name": "March" },
-                        { "id": "04", "name": "April" },
-                        { "id": "05", "name": "May" },
-                        { "id": "06", "name": "June" },
-                        { "id": "07", "name": "July" },
-                        { "id": "08", "name": "August" },
-                        { "id": "09", "name": "September" },
-                        { "id": "10", "name": "October" },
-                        { "id": "11", "name": "November" },
-                        { "id": "12", "name": "December" }
+                        { "id": "01", "name": "January", "disabled": false },
+                        { "id": "02", "name": "February", "disabled": false },
+                        { "id": "03", "name": "March", "disabled": false },
+                        { "id": "04", "name": "April", "disabled": false },
+                        { "id": "05", "name": "May", "disabled": false },
+                        { "id": "06", "name": "June", "disabled": false },
+                        { "id": "07", "name": "July", "disabled": false },
+                        { "id": "08", "name": "August", "disabled": false },
+                        { "id": "09", "name": "September", "disabled": false },
+                        { "id": "10", "name": "October", "disabled": false },
+                        { "id": "11", "name": "November", "disabled": false },
+                        { "id": "12", "name": "December", "disabled": false }
                     ];
-                    this.selectedReport = this.typeOfReports[0];
-                    this.selectedMonth = this.months[0];
-                    this.previousMonth = this.months[0];
+                    this.selectedReport = this.typeOfReports[0]; //defaults to the certification report (The html UI select)
+                    this.previousMonth = this.selectedMonth;
                     this.baseYear = 2015;
                     this.years = this.getJsonArrayOfYears();
                     this.selectedYear = this.years[0];
                     this.previousYear = this.years[0];
-                    // Todo: Get all the 'LearningPathValue' categories dynamically
+                    // Todo: Can we get all available 'LearningPathValue' categories dynamically?
                     this.learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
                     // array that holds all the counts for each LearningPathValue. Index order is the same as the learningPaths array.
                     // ie. Mobile = currentSelectMonth[0], WCC = currentSelectMonth[1], etc.
@@ -63,7 +62,10 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.pieDataToDisplay = [];
                 }
                 AppComponent.prototype.ngOnInit = function () {
-                    this.getAndRenderGraphs();
+                    this.disableFutureMonths();
+                    if (this.selectedReport.id == "1") {
+                        this.getAndRenderGraphs();
+                    }
                 };
                 AppComponent.prototype.onTestGet = function () {
                     var _this = this;
@@ -81,7 +83,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this._certService.postJsonTest()
                         .subscribe(function (data) { return _this.testPostData = JSON.stringify(data); }, function (error) { return console.log("error posting data"); }, function () { return console.log("finished getting data"); });
                 };
-                // -------- Event Hander Functions -------
+                // ------------------------------------------- Event Hander Functions ----------------------------------------------
                 AppComponent.prototype.onSelectReport = function (reportId) {
                     this.selectedReport = null;
                     for (var i = 0; i < this.typeOfReports.length; i++) {
@@ -89,7 +91,9 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                             this.selectedReport = this.typeOfReports[i];
                         }
                     }
-                    //this.getAndRenderGraphs();
+                    if (this.selectedReport.id == "1") {
+                        this.getAndRenderGraphs();
+                    }
                 };
                 AppComponent.prototype.onSelectMonth = function (monthId) {
                     this.selectedMonth = null;
@@ -107,6 +111,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                             this.selectedYear = this.years[i];
                         }
                     }
+                    this.disableFutureMonths();
                     this.getAndRenderGraphs();
                 };
                 AppComponent.prototype.onGenerateCharts = function () {
@@ -185,7 +190,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     var urlPath3 = "%27%29";
                     this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
                     console.log("currentFilterUrl: " + this.currentFilterUrl);
-                    // ---- Building the previous month query filter
+                    // ---- Build the previous month query filter
                     // Getting the previous month and year
                     var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
                     var prevMonthYearName = this.selectedYear.name;
@@ -258,6 +263,36 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.pieDataToDisplay.push(cloudPieData);
                     var devOpsPieData = ["DevOps", this.graphData.currentSelectMonth[4]];
                     this.pieDataToDisplay.push(devOpsPieData);
+                };
+                AppComponent.prototype.disableFutureMonths = function () {
+                    var d = new Date();
+                    var monthId = "0" + (d.getMonth() + 1).toString(); // getMonth() is 0-indexed. So add 1
+                    var thisYear = d.getFullYear();
+                    var monthFound = false;
+                    for (var i = 0; i < this.months.length; i++) {
+                        // disable future months from the drop down menu
+                        if (monthFound && this.selectedYear.id == thisYear.toString()) {
+                            this.months[i].disabled = true;
+                        }
+                        else {
+                            this.months[i].disabled = false;
+                        }
+                        if (this.months[i].id == monthId) {
+                            monthFound = true;
+                        }
+                    }
+                    if (monthFound && this.selectedYear.id == thisYear.toString()) {
+                        this.defaultToCurrentMonth();
+                    }
+                };
+                AppComponent.prototype.defaultToCurrentMonth = function () {
+                    var d = new Date();
+                    var monthId = "0" + (d.getMonth() + 1).toString(); // getMonth() is 0-indexed. So add 1
+                    for (var i = 0; i < this.months.length; i++) {
+                        if (this.months[i].id == monthId) {
+                            this.selectedMonth = this.months[i];
+                        }
+                    }
                 };
                 AppComponent.prototype.loadBarChart = function () {
                     $('#bargraphContainer').highcharts({
