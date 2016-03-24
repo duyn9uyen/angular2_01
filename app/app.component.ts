@@ -291,6 +291,7 @@ export class AppComponent implements OnInit  {
         this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
         //console.log("previousFilterUrl: " + this.previousFilterUrl);
         
+        //Debug only
         this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
         this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
     }

@@ -226,8 +226,9 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     var previous_dt_end = this.selectedYear.id + "-" + (this.selectedMonth.id).toString() + "-01";
                     this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
                     //console.log("previousFilterUrl: " + this.previousFilterUrl);
-                    this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
-                    this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
+                    //Debug only
+                    // this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
+                    // this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
                 };
                 AppComponent.prototype.getJsonArrayOfYears = function () {
                     var d = new Date();
