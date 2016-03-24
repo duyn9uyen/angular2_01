@@ -36,7 +36,7 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/add/operator/map'], fun
                     console.log('Service created.', _http);
                 }
                 CertService.prototype.getCertTrackingByDate = function (filterUrl) {
-                    filterUrl = "http://localhost:3000/app/certifications.json";
+                    //filterUrl = "http://localhost:3000/app/certifications.json";
                     return this._http.get(filterUrl)
                         .map(function (res) { return res.json(); });
                 };

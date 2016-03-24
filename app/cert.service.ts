@@ -19,7 +19,7 @@ export class CertService {
     }
     
     getCertTrackingByDate(filterUrl: string) {
-        filterUrl = "http://localhost:3000/app/certifications.json";
+        //filterUrl = "http://localhost:3000/app/certifications.json";
         
         return this._http.get(filterUrl)
                 .map(res => res.json());
