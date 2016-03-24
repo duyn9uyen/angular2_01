@@ -36,8 +36,9 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/add/operator/map'], fun
                     console.log('Service created.', _http);
                 }
                 CertService.prototype.getCertTrackingByDate = function (filterUrl) {
-                    //filterUrl = "http://localhost:3000/app/certifications.json";
-                    return this._http.get(filterUrl)
+                    var headers = new http_1.Headers();
+                    headers.append('Accept', 'application/json');
+                    return this._http.get(filterUrl, { headers: headers })
                         .map(function (res) { return res.json(); });
                 };
                 CertService.prototype.getJsonTest = function () {
@@ -58,6 +59,7 @@ System.register(['angular2/core', 'angular2/http', 'rxjs/add/operator/map'], fun
                     headers.append('Content-Type', 'application/x-www-form-urlencoded)');
                     headers.append('Access-Control-Allow-Origin', '*');
                     headers.append('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+                    headers.append('Accept', 'application/json');
                     return this._http.post('http://validate.jsontest.com', params, { headers: headers }) // optinal arguments
                         .map(function (res) { return res.json(); });
                 };

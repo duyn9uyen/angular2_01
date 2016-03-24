@@ -187,9 +187,9 @@ export class AppComponent implements OnInit  {
             // on success...
             data => this.parseData(this._currentData, this.graphData.currentSelectMonth,  data),
             // on error
-            error => console.log("error getting data"),
+            error => console.log("error getting current data: " + error),
             // completed
-            () => console.log("finished getting data")
+            () => console.log("finished getting current data")
         );
         
         this._certService.getCertTrackingByDate(this.previousFilterUrl)
@@ -197,7 +197,7 @@ export class AppComponent implements OnInit  {
             // on success...
             data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
             // on error
-            error => console.log("error getting data"),
+            error => console.log("error getting previous data: " + error),
             // completed
             () => this.buildAndLoadCharts()
         );
@@ -247,7 +247,7 @@ export class AppComponent implements OnInit  {
         var urlPath3: string = "%27%29";
     
         this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
-        console.log("currentFilterUrl: " + this.currentFilterUrl);
+        //console.log("currentFilterUrl: " + this.currentFilterUrl);
         
         // ---- Build the previous month query filter
         
@@ -289,7 +289,10 @@ export class AppComponent implements OnInit  {
         var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
         var previous_dt_end = this.selectedYear.id + "-" + (this.selectedMonth.id).toString()  + "-01";
         this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
-        console.log("previousFilterUrl: " + this.previousFilterUrl);
+        //console.log("previousFilterUrl: " + this.previousFilterUrl);
+        
+        this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
+        this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
     }
     
     private getJsonArrayOfYears() {
@@ -470,7 +473,7 @@ export class AppComponent implements OnInit  {
             },
             series: [{
                 type: 'pie',
-                name: 'Browser share', //Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps
+                name: this.selectedMonth.name + ' Cert(s)', //Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps
                 // data: [
                 //     ['Mobile', 4],
                 //     ['WCC', 8],

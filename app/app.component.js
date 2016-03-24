@@ -138,15 +138,15 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     // on success...
                     function (data) { return _this.parseData(_this._currentData, _this.graphData.currentSelectMonth, data); }, 
                     // on error
-                    function (error) { return console.log("error getting data"); }, 
+                    function (error) { return console.log("error getting current data: " + error); }, 
                     // completed
-                    function () { return console.log("finished getting data"); });
+                    function () { return console.log("finished getting current data"); });
                     this._certService.getCertTrackingByDate(this.previousFilterUrl)
                         .subscribe(
                     // on success...
                     function (data) { return _this.parseData(_this._previousData, _this.graphData.previousSelectMonth, data); }, 
                     // on error
-                    function (error) { return console.log("error getting data"); }, 
+                    function (error) { return console.log("error getting previous data: " + error); }, 
                     // completed
                     function () { return _this.buildAndLoadCharts(); });
                 };
@@ -189,7 +189,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     var urlPath2 = "%27%29%20and%20%28DatePassed+lt+datetime%27";
                     var urlPath3 = "%27%29";
                     this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
-                    console.log("currentFilterUrl: " + this.currentFilterUrl);
+                    //console.log("currentFilterUrl: " + this.currentFilterUrl);
                     // ---- Build the previous month query filter
                     // Getting the previous month and year
                     var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
@@ -225,7 +225,9 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
                     var previous_dt_end = this.selectedYear.id + "-" + (this.selectedMonth.id).toString() + "-01";
                     this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
-                    console.log("previousFilterUrl: " + this.previousFilterUrl);
+                    //console.log("previousFilterUrl: " + this.previousFilterUrl);
+                    this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
+                    this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
                 };
                 AppComponent.prototype.getJsonArrayOfYears = function () {
                     var d = new Date();
@@ -387,7 +389,7 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                         },
                         series: [{
                                 type: 'pie',
-                                name: 'Browser share',
+                                name: this.selectedMonth.name + ' Cert(s)',
                                 // data: [
                                 //     ['Mobile', 4],
                                 //     ['WCC', 8],

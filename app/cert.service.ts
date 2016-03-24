@@ -18,10 +18,12 @@ export class CertService {
         console.log('Service created.', _http);
     }
     
-    getCertTrackingByDate(filterUrl: string) {
-        //filterUrl = "http://localhost:3000/app/certifications.json";
+    getCertTrackingByDate(filterUrl: string) {                
+        var headers = new Headers();
+        headers.append('Accept', 'application/json');
         
-        return this._http.get(filterUrl)
+        return this._http.get(filterUrl,
+                 { headers: headers})
                 .map(res => res.json());
     }
     
@@ -48,6 +50,7 @@ export class CertService {
         
         headers.append('Access-Control-Allow-Origin', '*');
         headers.append('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
+        headers.append('Accept', 'application/json');
         
         return this._http.post('http://validate.jsontest.com',
             params, 
