@@ -189,18 +189,30 @@ export class AppComponent implements OnInit  {
             // on error
             error => console.log("error getting current data: " + error),
             // completed
-            () => console.log("finished getting current data")
+            () => 
+                // Move the request to retrieve the previous data here so that
+                // it starts AFTER the current data has been retrieved. Otherwise, This 2nd query may finished before
+                // the 1st current data is returned. (That causes the current month data to be missing on the graph.)
+                this._certService.getCertTrackingByDate(this.previousFilterUrl)
+                .subscribe(
+                    // on success...
+                    data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
+                    // on error
+                    error => console.log("error getting previous data: " + error),
+                    // completed
+                    () => this.buildAndLoadCharts()
+                )
         );
         
-        this._certService.getCertTrackingByDate(this.previousFilterUrl)
-        .subscribe(
-            // on success...
-            data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
-            // on error
-            error => console.log("error getting previous data: " + error),
-            // completed
-            () => this.buildAndLoadCharts()
-        );
+        // this._certService.getCertTrackingByDate(this.previousFilterUrl)
+        // .subscribe(
+        //     // on success...
+        //     data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
+        //     // on error
+        //     error => console.log("error getting previous data: " + error),
+        //     // completed
+        //     () => this.buildAndLoadCharts()
+        // );
     }
     
     private parseData(_data, _counts, dataFromService) {
@@ -292,8 +304,8 @@ export class AppComponent implements OnInit  {
         //console.log("previousFilterUrl: " + this.previousFilterUrl);
         
         //Debug only
-        this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
-        this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
+        // this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
+        // this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
     }
     
     private getJsonArrayOfYears() {

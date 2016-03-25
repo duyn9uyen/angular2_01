@@ -140,15 +140,28 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     // on error
                     function (error) { return console.log("error getting current data: " + error); }, 
                     // completed
-                    function () { return console.log("finished getting current data"); });
-                    this._certService.getCertTrackingByDate(this.previousFilterUrl)
-                        .subscribe(
-                    // on success...
-                    function (data) { return _this.parseData(_this._previousData, _this.graphData.previousSelectMonth, data); }, 
-                    // on error
-                    function (error) { return console.log("error getting previous data: " + error); }, 
-                    // completed
-                    function () { return _this.buildAndLoadCharts(); });
+                    function () {
+                        // Move the request to retrieve the previous data here so that
+                        // it starts AFTER the current data has been retrieved. Otherwise, This 2nd query may finished before
+                        // the 1st current data is returned. (That causes the current month data to be missing on the graph.)
+                        return _this._certService.getCertTrackingByDate(_this.previousFilterUrl)
+                            .subscribe(
+                        // on success...
+                        function (data) { return _this.parseData(_this._previousData, _this.graphData.previousSelectMonth, data); }, 
+                        // on error
+                        function (error) { return console.log("error getting previous data: " + error); }, 
+                        // completed
+                        function () { return _this.buildAndLoadCharts(); });
+                    });
+                    // this._certService.getCertTrackingByDate(this.previousFilterUrl)
+                    // .subscribe(
+                    //     // on success...
+                    //     data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
+                    //     // on error
+                    //     error => console.log("error getting previous data: " + error),
+                    //     // completed
+                    //     () => this.buildAndLoadCharts()
+                    // );
                 };
                 AppComponent.prototype.parseData = function (_data, _counts, dataFromService) {
                     _data = dataFromService;
