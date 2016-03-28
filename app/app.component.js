@@ -128,6 +128,10 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.getData();
                 };
                 AppComponent.prototype.initializeCountArray = function () {
+                    this.graphData = {
+                        currentSelectMonth: [],
+                        previousSelectMonth: []
+                    };
                     for (var i = 0; i < this.learningPaths.length; i++) {
                         this.graphData.currentSelectMonth.push(0);
                         this.graphData.previousSelectMonth.push(0);
@@ -201,14 +205,21 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                 };
                 AppComponent.prototype.buildSearchFilter = function () {
                     var dt_start = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
-                    var dt_end = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString() + "-01";
+                    var dt_end, endMonth;
+                    if (parseInt(this.selectedMonth.id) == 12) {
+                        endMonth = this.zeroPad((parseInt(this.selectedMonth.id) - 11), 2);
+                        dt_end = (parseInt(this.selectedYear.id) + 1).toString() + "-" + endMonth + "-01";
+                    }
+                    else {
+                        dt_end = this.selectedYear.id + "-" + this.zeroPad(parseInt(this.selectedMonth.id) + 1, 2) + "-01";
+                    }
                     var protocol = "https";
                     var domain = "portal.captechventures.com";
                     var urlPath1 = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
                     var urlPath2 = "%27%29%20and%20%28DatePassed+lt+datetime%27";
                     var urlPath3 = "%27%29";
                     this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
-                    //console.log("currentFilterUrl: " + this.currentFilterUrl);
+                    console.log("currentFilterUrl: " + this.currentFilterUrl);
                     // ---- Build the previous month query filter
                     // Getting the previous month and year
                     var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
@@ -244,10 +255,14 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
                     var previous_dt_end = this.selectedYear.id + "-" + (this.selectedMonth.id).toString() + "-01";
                     this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
-                    //console.log("previousFilterUrl: " + this.previousFilterUrl);
+                    console.log("previousFilterUrl: " + this.previousFilterUrl);
                     //Debug only
                     this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
                     this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
+                };
+                AppComponent.prototype.zeroPad = function (num, places) {
+                    var zero = places - num.toString().length + 1;
+                    return Array(+(zero > 0 && zero)).join("0") + num;
                 };
                 AppComponent.prototype.getJsonArrayOfYears = function () {
                     var d = new Date();

@@ -177,6 +177,11 @@ export class AppComponent implements OnInit  {
     }
     
     private initializeCountArray() {
+        this.graphData = {
+            currentSelectMonth: [],
+            previousSelectMonth: []
+        }
+    
         for (var i = 0; i < this.learningPaths.length; i++)
         {
             this.graphData.currentSelectMonth.push(0);
@@ -195,7 +200,7 @@ export class AppComponent implements OnInit  {
             error => console.log("error getting current data: " + error),
             // completed
             () => 
-                // Move the request here to retrieve the previous data here so that
+                // Move the request to retrieve the previous data here so that
                 // it starts AFTER the current data has been retrieved. Otherwise, This 2nd query may finished before
                 // the 1st current data is returned. (That causes the current month data to be missing on the graph.)
                 this._certService.getCertTrackingByDate(this.previousFilterUrl)
@@ -208,6 +213,16 @@ export class AppComponent implements OnInit  {
                     () => this.buildAndLoadCharts()
                 )
         );
+        
+        // this._certService.getCertTrackingByDate(this.previousFilterUrl)
+        // .subscribe(
+        //     // on success...
+        //     data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
+        //     // on error
+        //     error => console.log("error getting previous data: " + error),
+        //     // completed
+        //     () => this.buildAndLoadCharts()
+        // );
     }
     
     private parseData(_data, _counts, dataFromService) {
@@ -249,7 +264,16 @@ export class AppComponent implements OnInit  {
     
     private buildSearchFilter() {
         var dt_start : string = this.selectedYear.id + "-" + this.selectedMonth.id + "-01";
-        var dt_end : string = this.selectedYear.id + "-" + "0" + (parseInt(this.selectedMonth.id) + 1).toString()  + "-01";
+        var dt_end, endMonth;
+        
+        // If the selected month is December, the end month needs to be Janurary of the next year
+        if(parseInt(this.selectedMonth.id) == 12) {
+            endMonth = this.zeroPad((parseInt(this.selectedMonth.id) - 11), 2);
+            dt_end = (parseInt(this.selectedYear.id) + 1).toString() + "-" + endMonth  + "-01";
+        } else {
+            dt_end = this.selectedYear.id + "-" + this.zeroPad(parseInt(this.selectedMonth.id) + 1, 2)  + "-01";
+        }                      
+        
         var protocol : string = "https";
         var domain: string = "portal.captechventures.com";
         var urlPath1: string = "/PA/SI/_vti_bin/listdata.svc/CertificationTracking?$filter=%28DatePassed+ge+datetime%27";
@@ -257,7 +281,7 @@ export class AppComponent implements OnInit  {
         var urlPath3: string = "%27%29";
     
         this.currentFilterUrl = protocol + "://" + domain + urlPath1 + dt_start + urlPath2 + dt_end + urlPath3;
-        //console.log("currentFilterUrl: " + this.currentFilterUrl);
+        console.log("currentFilterUrl: " + this.currentFilterUrl);
         
         // ---- Build the previous month query filter
         
@@ -299,11 +323,16 @@ export class AppComponent implements OnInit  {
         var previous_dt_start = this.previousYear.id + "-" + this.previousMonth.id + "-01";
         var previous_dt_end = this.selectedYear.id + "-" + (this.selectedMonth.id).toString()  + "-01";
         this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
-        //console.log("previousFilterUrl: " + this.previousFilterUrl);
+        console.log("previousFilterUrl: " + this.previousFilterUrl);
         
         //Debug only
         this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
         this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
+    }
+    
+    private zeroPad(num, places) {
+        var zero = places - num.toString().length + 1;
+        return Array(+(zero > 0 && zero)).join("0") + num;
     }
     
     private getJsonArrayOfYears() {
@@ -501,3 +530,8 @@ export class AppComponent implements OnInit  {
     }
     
 }
+
+$(document).ready(function(){
+    // alert("jquery");
+    // var el = $('#spin').spin({ color: '#333', shadow: false })
+});
