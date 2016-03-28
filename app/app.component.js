@@ -50,12 +50,12 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.selectedYear = this.years[0];
                     this.previousYear = this.years[0];
                     // Todo: Can we get all available 'LearningPathValue' categories dynamically?
-                    this.learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
+                    this.learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps', 'Web App Dev'];
                     // array that holds all the counts for each LearningPathValue. Index order is the same as the learningPaths array.
                     // ie. Mobile = currentSelectMonth[0], WCC = currentSelectMonth[1], etc.
                     this.graphData = {
-                        currentSelectMonth: [0, 0, 0, 0, 0],
-                        previousSelectMonth: [0, 0, 0, 0, 0]
+                        currentSelectMonth: [],
+                        previousSelectMonth: []
                     };
                     this.ignorePreviousMonth = false;
                     this.barDataToDisplay = [];
@@ -124,11 +124,14 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     // clear any previous data
                     this.barDataToDisplay = [];
                     this.pieDataToDisplay = [];
-                    this.graphData = {
-                        currentSelectMonth: [0, 0, 0, 0, 0],
-                        previousSelectMonth: [0, 0, 0, 0, 0]
-                    };
+                    this.initializeCountArray();
                     this.getData();
+                };
+                AppComponent.prototype.initializeCountArray = function () {
+                    for (var i = 0; i < this.learningPaths.length; i++) {
+                        this.graphData.currentSelectMonth.push(0);
+                        this.graphData.previousSelectMonth.push(0);
+                    }
                 };
                 AppComponent.prototype.getData = function () {
                     var _this = this;
@@ -183,6 +186,9 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                                 break;
                             case "DevOps":
                                 _counts[4]++;
+                                break;
+                            case "Web App Dev":
+                                _counts[5]++;
                                 break;
                         }
                     }
@@ -240,8 +246,8 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.previousFilterUrl = protocol + "://" + domain + urlPath1 + previous_dt_start + urlPath2 + previous_dt_end + urlPath3;
                     //console.log("previousFilterUrl: " + this.previousFilterUrl);
                     //Debug only
-                    // this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
-                    // this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
+                    this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
+                    this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
                 };
                 AppComponent.prototype.getJsonArrayOfYears = function () {
                     var d = new Date();
@@ -279,6 +285,8 @@ System.register(['angular2/core', './cert.service'], function(exports_1, context
                     this.pieDataToDisplay.push(cloudPieData);
                     var devOpsPieData = ["DevOps", this.graphData.currentSelectMonth[4]];
                     this.pieDataToDisplay.push(devOpsPieData);
+                    var webAppDevPieData = ["Web App Dev", this.graphData.currentSelectMonth[5]];
+                    this.pieDataToDisplay.push(webAppDevPieData);
                 };
                 AppComponent.prototype.disableFutureMonths = function () {
                     var d = new Date();

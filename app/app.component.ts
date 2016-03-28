@@ -53,15 +53,15 @@ export class AppComponent implements OnInit  {
     previousFilterUrl: string;
     
     // Todo: Can we get all available 'LearningPathValue' categories dynamically?
-    learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps'];
+    learningPaths = ['Mobile', 'WCC', 'Services & APIs', 'Cloud', 'DevOps', 'Web App Dev'];
 
     // array that holds all the counts for each LearningPathValue. Index order is the same as the learningPaths array.
     // ie. Mobile = currentSelectMonth[0], WCC = currentSelectMonth[1], etc.
     graphData = {
-        currentSelectMonth: [0, 0, 0, 0, 0],
-        previousSelectMonth: [0, 0, 0, 0, 0]
+        currentSelectMonth: [],
+        previousSelectMonth: []
     }
-    
+
     ignorePreviousMonth: boolean = false;
     
     barDataToDisplay = [];
@@ -171,12 +171,17 @@ export class AppComponent implements OnInit  {
         // clear any previous data
         this.barDataToDisplay = [];
         this.pieDataToDisplay = [];
-        this.graphData = {
-            currentSelectMonth: [0, 0, 0, 0, 0],
-            previousSelectMonth: [0, 0, 0, 0, 0]
-        }
+        this.initializeCountArray();
         
         this.getData();
+    }
+    
+    private initializeCountArray() {
+        for (var i = 0; i < this.learningPaths.length; i++)
+        {
+            this.graphData.currentSelectMonth.push(0);
+            this.graphData.previousSelectMonth.push(0);
+        }
     }
     
     private getData() {
@@ -190,7 +195,7 @@ export class AppComponent implements OnInit  {
             error => console.log("error getting current data: " + error),
             // completed
             () => 
-                // Move the request to retrieve the previous data here so that
+                // Move the request here to retrieve the previous data here so that
                 // it starts AFTER the current data has been retrieved. Otherwise, This 2nd query may finished before
                 // the 1st current data is returned. (That causes the current month data to be missing on the graph.)
                 this._certService.getCertTrackingByDate(this.previousFilterUrl)
@@ -203,16 +208,6 @@ export class AppComponent implements OnInit  {
                     () => this.buildAndLoadCharts()
                 )
         );
-        
-        // this._certService.getCertTrackingByDate(this.previousFilterUrl)
-        // .subscribe(
-        //     // on success...
-        //     data => this.parseData(this._previousData, this.graphData.previousSelectMonth, data),
-        //     // on error
-        //     error => console.log("error getting previous data: " + error),
-        //     // completed
-        //     () => this.buildAndLoadCharts()
-        // );
     }
     
     private parseData(_data, _counts, dataFromService) {
@@ -237,6 +232,9 @@ export class AppComponent implements OnInit  {
                     break;
                 case "DevOps":
                     _counts[4]++;
+                    break;
+                case "Web App Dev":
+                    _counts[5]++;
                     break;
             } 
         }
@@ -304,8 +302,8 @@ export class AppComponent implements OnInit  {
         //console.log("previousFilterUrl: " + this.previousFilterUrl);
         
         //Debug only
-        // this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
-        // this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
+        this.currentFilterUrl = "http://localhost:3000/app/certifications-mar.json";
+        this.previousFilterUrl = "http://localhost:3000/app/certifications-feb.json";
     }
     
     private getJsonArrayOfYears() {
@@ -354,6 +352,9 @@ export class AppComponent implements OnInit  {
         
         var devOpsPieData = ["DevOps", this.graphData.currentSelectMonth[4]]
         this.pieDataToDisplay.push(devOpsPieData);
+        
+         var webAppDevPieData = ["Web App Dev", this.graphData.currentSelectMonth[5]]
+        this.pieDataToDisplay.push(webAppDevPieData);
     }
     
     private disableFutureMonths() {
@@ -500,8 +501,3 @@ export class AppComponent implements OnInit  {
     }
     
 }
-
-$(document).ready(function(){
-    // alert("jquery");
-    // var el = $('#spin').spin({ color: '#333', shadow: false })
-});
