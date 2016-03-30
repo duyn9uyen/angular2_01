@@ -268,7 +268,7 @@ export class AppComponent implements OnInit  {
         
         // If the selected month is December, the end month needs to be Janurary of the next year
         if(parseInt(this.selectedMonth.id) == 12) {
-            endMonth = this.zeroPad((parseInt(this.selectedMonth.id) - 11), 2);
+            endMonth = this.zeroPad(1, 2);
             dt_end = (parseInt(this.selectedYear.id) + 1).toString() + "-" + endMonth  + "-01";
         } else {
             dt_end = this.selectedYear.id + "-" + this.zeroPad(parseInt(this.selectedMonth.id) + 1, 2)  + "-01";
@@ -287,7 +287,6 @@ export class AppComponent implements OnInit  {
         
         // Getting the previous month and year
         var previousMonthIndex = (parseInt(this.selectedMonth.id) - 2);
-        var prevMonthYearName = this.selectedYear.name;
         
         // the previous month is in the same selected year
         if(previousMonthIndex > -1) {
